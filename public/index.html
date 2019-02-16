@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script
+            src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous"></script>
+    <title>Homework11</title>
+</head>
+<body>
+<p>Выбирите цвет:</p>
+<div>
+    <input type="radio" id="black"
+           name="colour" value="rgb(0, 0, 0)">
+    <label for="black">BLACK</label>
+    <input type="radio" id="red"
+           name="colour" value="rgb(255, 0, 0)">
+    <label for="red">RED</label>
+    <input type="radio" id="blue"
+           name="colour" value="rgb(0, 0, 255)">
+    <label for="blue">BLUE</label>
+    <input type="radio" id="green"
+           name="colour" value="rgb(0, 255, 0)">
+    <label for="green">GREEN</label>
+</div>
+<canvas id="myCanvas" width="400" height="300" style="border:1px solid #d3d3d3;">
+</canvas>
+<script>
+    $(()=>{
+        let host = window.location.hostname;
+        let ip = `ws://${host}:3333/chat`;
+        const websocket = new WebSocket(ip);
+        let c = document.getElementById("myCanvas");
+        let ctx = c.getContext("2d");
+
+        $("#black").click(()=>{
+            ctx.fillStyle = "rgb(0,0,0)";
+        });
+
+        $("#red").click(()=>{
+            ctx.fillStyle = "rgb(255,0,0)";
+        });
+
+        $("#blue").click(()=>{
+            ctx.fillStyle = "rgb(0,0,255)";
+
+        });
+
+        $("#green").click(()=>{
+            ctx.fillStyle = "rgb(0,255,0)";
+        });
+
+        c.addEventListener('click', function(event) {
+            var rect = myCanvas.getBoundingClientRect();
+            var x = event.clientX - rect.left;
+            var y = event.clientY - rect.top;
+            const message = {
+                x: x,
+                y: y,
+                colour: ctx.fillStyle
+            };
+            websocket.send(JSON.stringify(message));
+        }, false);
+            const renderMessage = (data) => {
+                ctx.beginPath();
+                ctx.fillStyle = data.colour;
+                ctx.arc(data.x,data.y,5,0,2*Math.PI);
+                ctx.fill();
+            };
+            websocket.onmessage = function (msg) {
+                renderMessage(JSON.parse(msg.data));
+            };
+    });
+</script>
+</body>
+</html>
